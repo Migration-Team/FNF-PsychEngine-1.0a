@@ -2,6 +2,7 @@ package options;
 
 import flixel.addons.transition.FlxTransitionableState;
 
+import lime.utils.Assets;
 class LanguageSubState extends MusicBeatSubstate
 {
 	#if TRANSLATIONS_ALLOWED

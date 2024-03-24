@@ -14,6 +14,9 @@ import flixel.math.FlxMath;
 import flixel.util.FlxDestroyUtil;
 import haxe.Json;
 
+import lime.utils.Assets;
+
+
 class FreeplayState extends MusicBeatState
 {
 	var songs:Array<SongMetadata> = [];

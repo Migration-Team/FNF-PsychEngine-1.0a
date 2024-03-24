@@ -1,7 +1,7 @@
 package;
 
 #if android
-import android.content.Context;
+import backend.SUtil;
 #end
 
 import debug.FPSCounter;

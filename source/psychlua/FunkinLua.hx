@@ -646,7 +646,8 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "mouseClicked", function(button:String) {
 			var click:Bool = FlxG.mouse.justPressed;
-			switch(button){
+			switch(button.trim().toLowerCase())
+			{
 				case 'middle':
 					click = FlxG.mouse.justPressedMiddle;
 				case 'right':
@@ -656,7 +657,8 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "mousePressed", function(button:String) {
 			var press:Bool = FlxG.mouse.pressed;
-			switch(button){
+			switch(button.trim().toLowerCase())
+			{
 				case 'middle':
 					press = FlxG.mouse.pressedMiddle;
 				case 'right':
@@ -666,7 +668,8 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "mouseReleased", function(button:String) {
 			var released:Bool = FlxG.mouse.justReleased;
-			switch(button){
+			switch(button.trim().toLowerCase())
+			{
 				case 'middle':
 					released = FlxG.mouse.justReleasedMiddle;
 				case 'right':
@@ -1305,35 +1308,41 @@ class FunkinLua {
 		});
 		Lua_helper.add_callback(lua, "startDialogue", function(dialogueFile:String, music:String = null) {
 			var path:String;
+			var songPath:String = Paths.formatToSongPath(PlayState.SONG.song);
+			#if TRANSLATIONS_ALLOWED
+			path = Paths.getPath('data/$songPath/${dialogueFile}_${ClientPrefs.data.language}.json', TEXT);
 			#if MODS_ALLOWED
-			path = Paths.modsJson(Paths.formatToSongPath(PlayState.SONG.song) + '/' + dialogueFile);
 			if(!FileSystem.exists(path))
+			#else
+			if(!Assets.exists(path, TEXT))
 			#end
-				path = Paths.json(Paths.formatToSongPath(PlayState.SONG.song) + '/' + dialogueFile);
+			#end
+				path = Paths.getPath('data/$songPath/$dialogueFile.json', TEXT);
 
 			luaTrace('startDialogue: Trying to load dialogue: ' + path);
 
 			#if MODS_ALLOWED
 			if(FileSystem.exists(path))
 			#else
-			if(Assets.exists(path))
+			if(Assets.exists(path, TEXT))
 			#end
 			{
 				var shit:DialogueFile = DialogueBoxPsych.parseDialogue(path);
-				if(shit.dialogue.length > 0) {
+				if(shit.dialogue.length > 0)
+				{
 					game.startDialogue(shit, music);
 					luaTrace('startDialogue: Successfully loaded dialogue', false, false, FlxColor.GREEN);
 					return true;
-				} else {
-					luaTrace('startDialogue: Your dialogue file is badly formatted!', false, false, FlxColor.RED);
 				}
-			} else {
+				else luaTrace('startDialogue: Your dialogue file is badly formatted!', false, false, FlxColor.RED);
+			}
+			else
+			{
 				luaTrace('startDialogue: Dialogue file not found', false, false, FlxColor.RED);
-				if(game.endingSong) {
+				if(game.endingSong)
 					game.endSong();
-				} else {
+				else
 					game.startCountdown();
-				}
 			}
 			return false;
 		});
@@ -1348,11 +1357,15 @@ class FunkinLua {
 			return false;
 
 			#else
-			if(game.endingSong) {
-				game.endSong();
-			} else {
-				game.startCountdown();
-			}
+			PlayState.instance.inCutscene = true;
+			new FlxTimer().start(0.1, function(tmr:FlxTimer)
+			{
+				PlayState.instance.inCutscene = false;
+				if(game.endingSong)
+					game.endSong();
+				else
+					game.startCountdown();
+			});
 			return true;
 			#end
 		});
@@ -1366,6 +1379,7 @@ class FunkinLua {
 				if(game.modchartSounds.exists(tag)) {
 					game.modchartSounds.get(tag).stop();
 				}
+
 				game.modchartSounds.set(tag, FlxG.sound.play(Paths.sound(sound), volume, false, null, true, function() {
 					game.modchartSounds.remove(tag);
 					game.callOnLuas('onSoundFinished', [tag]);
@@ -1708,8 +1722,12 @@ class FunkinLua {
 		#if (MODS_ALLOWED && !flash && sys)
 		if(runtimeShaders.exists(name))
 		{
-			luaTrace('Shader $name was already initialized!');
-			return true;
+			var shaderData:Array<String> = runtimeShaders.get(name);
+			if(shaderData != null && (shaderData[0] != null || shaderData[1] != null))
+			{
+				luaTrace('Shader $name was already initialized!');
+				return true;
+			}
 		}
 
 		var foldersToCheck:Array<String> = [Paths.mods('shaders/')];

@@ -1,4 +1,4 @@
-package mobile.backend;
+package backend;
 
 #if android
 import lime.app.Application;

@@ -67,6 +67,8 @@ class Main extends Sprite
         #if android
         Sys.setCwd(#if (android)Path.addTrailingSlash(#end SUtil.getStorageDirectory()#if (android))#end);
         #end
+		backend.CrashHandler.init();
+
 
 		if (stage != null)
 		{

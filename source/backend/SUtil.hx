@@ -22,20 +22,14 @@ import sys.FileSystem;
  */
 class SUtil
 {
-	#if sys
-	public static function getStorageDirectory(type:StorageType):String
+	
+	public static function getStorageDirectory():String
 	{
-		var daPath:String = '';
-
 		#if android
-		switch (type)
-		{
-      case EXTERNAL:
-				daPath = AndroidEnvironment.getExternalStorageDirectory() + '/.' + Application.current.meta.get('file');
-		}
-		
-		return daPath;
+		return AndroidEnvironment.getExternalStorageDirectory() + '/.' + Application.current.meta.get('file');
+		#end
 	}
+	
 
 	public static function mkDirs(directory:String):Void
 	{
@@ -80,7 +74,6 @@ class SUtil
 		catch (e:Exception)
 			LimeLogger.println("File couldn't be saved.\n(${e.message})");
 	}
-	#end
 
 	#if android
 	public static function doPermissionsShit():Void
